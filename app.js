@@ -6,27 +6,27 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 const app = express();
-const MOVIES = require("./movies-data.json")
+const MOVIES = require("./movies-data.json");
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(helmet());
 
 app.use(function validateToken(req, res, next) {
-  const apiToken = process.env.API_TOKEN
+  const apiToken = process.env.API_TOKEN;
   // did not use bearer ${api-key} to save time. if we had passed in bearer ${api-key} then we wouldve have used split(' ')[i]
-  const authToken = req.get('Authorization')
+  const authToken = req.get('Authorization');
 
   if (!authToken || authToken !== apiToken) {
     return res
       .status(401)
-      .send('Unauthorized request: Must have valid api token.')
+      .send('Unauthorized request: Must have valid api token.');
   }
-  next()
-})
+  next();
+});
 
 app.get('/movie', (req, res) => {
-  const {genre = "", country = "", avg_vote} = req.query
+  const {genre = "", country = "", avg_vote} = req.query;
 
   let result = MOVIES;
 
@@ -35,7 +35,7 @@ app.get('/movie', (req, res) => {
       movie
         .genre
         .toLowerCase()
-        .includes(genre.toLowerCase()))
+        .includes(genre.toLowerCase()));
   }
 
   if (country) {
@@ -43,18 +43,18 @@ app.get('/movie', (req, res) => {
       movie
         .country
         .toLowerCase()
-        .includes(country.toLowerCase()))
+        .includes(country.toLowerCase()));
   } 
 
   if (avg_vote) {
     result = result.filter(movie => 
-      movie.avg_vote >= (Number(avg_vote)))
+      movie.avg_vote >= (Number(avg_vote)));
   }
   
-  res.send(result)
+  res.send(result);
 });
 
-const PORT = 8000
+const PORT = 8000;
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
