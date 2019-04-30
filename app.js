@@ -12,8 +12,9 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(helmet());
 
-app.use(function validateHeader(req, res, next) {
+app.use(function validateToken(req, res, next) {
   const apiToken = process.env.API_TOKEN
+  // did not use bearer ${api-key} to save time. if we had passed in bearer ${api-key} then we wouldve have used split(' ')[i]
   const authToken = req.get('Authorization')
 
   if (!authToken || authToken !== apiToken) {
@@ -21,7 +22,6 @@ app.use(function validateHeader(req, res, next) {
       .status(401)
       .send('Unauthorized request: Must have valid api token.')
   }
-
   next()
 })
 
@@ -54,6 +54,8 @@ app.get('/movie', (req, res) => {
   res.send(result)
 });
 
-app.listen(8000, () => {
-  console.log('Running on port 8000');
+const PORT = 8000
+
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`);
 });
