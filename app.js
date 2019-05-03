@@ -8,13 +8,13 @@ const helmet = require('helmet');
 const app = express();
 const MOVIES = require("./movies-data.json");
 
-app.use(morgan('dev'));
+const morganSetting = process.env.NODE_ENV === 'production' ? 'tiny' : 'common'
+app.use(morgan(morganSetting));
 app.use(cors());
 app.use(helmet());
 
 app.use(function validateToken(req, res, next) {
   const apiToken = process.env.API_TOKEN;
-  // did not use bearer ${api-key} to save time. if we had passed in bearer ${api-key} then we wouldve have used split(' ')[i]
   const authToken = req.get('Authorization');
 
   if (!authToken || authToken !== apiToken) {
@@ -54,8 +54,16 @@ app.get('/movie', (req, res) => {
   res.send(result);
 });
 
-const PORT = 8000;
+app.use((error, req, res, next) => {
+  let response
+  if (process.env.NODE_ENV === 'production') {
+    response = { error: { message: 'server error' }}
+  } else {
+    response = { error }
+  }
+  res.status(500).json(response)
+})
 
-app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT);
